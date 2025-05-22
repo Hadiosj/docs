@@ -1,216 +1,204 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Parcel Tracer API",
+    "version": "1.0.0",
+    "description": "API for delivery companies to track orders and drivers"
   },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
+  "paths": {},
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Order": {
         "type": "object",
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "order_id": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Auto-generated unique identifier of the order"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+          "reference_id": {
+            "type": "string",
+            "description": "Reference number provided by the merchant"
           },
-          {
-            "required": [
-              "id"
+          "is_exchange": {
+            "type": "boolean",
+            "description": "If true, requires picking up return package upon delivery"
+          },
+          "workflow": {
+            "type": "string",
+            "enum": ["STANDARD", "RETURN"],
+            "description": "STANDARD: merchant to customer, RETURN: customer to merchant"
+          },
+          "tracking_hash": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Globally unique identifier used to track order publicly"
+          },
+          "is_critical": {
+            "type": "boolean",
+            "description": "If true, enforces rapid delivery operation"
+          },
+          "customer": {
+            "type": "integer",
+            "description": "Customer's identifier"
+          },
+          "customer_location": {
+            "type": "integer",
+            "description": "Customer location ID used for delivery or return pickup"
+          },
+          "merchant_location": {
+            "type": "integer",
+            "description": "Merchant location ID used for order pickup or return"
+          },
+          "cod": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "string",
+                  "enum": ["USD", "LBP", "EURO"]
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+(\\.[0-9]+)?$"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "description": "Amount to be collected upon delivery or return"
+          },
+          "number_of_packages": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Should be >= 1"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the order content"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Extra notes shared with all parties"
+          },
+          "return_reason": {
+            "type": "string",
+            "description": "Reason for return (only for RETURN orders)"
+          },
+          "delivery_state": {
+            "type": "string",
+            "enum": [
+              "CREATED", "PICKUP_REQUESTED", "PICKUP_ASSIGNED", "SCANNED_FOR_PICKUP",
+              "PICKED_UP", "AT_WAREHOUSE", "DELIVERY_ASSIGNED", "SCANNED_FOR_DELIVERY",
+              "PICKED_UP_FOR_DELIVERY", "IN_TRANSIT", "DELIVERED", "AWAITING_RETURN",
+              "CANCELLED", "DELIVERED_AT_WAREHOUSE"
             ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+            "readOnly": true,
+            "description": "Lifecycle state of the order"
+          },
+          "payment_state": {
+            "type": "string",
+            "enum": [
+              "UNPAID", "PENDING_PAYMENT_BY_DRIVER", "PAID_BY_DRIVER",
+              "PENDING_PAYMENT_TO_MERCHANT", "PAID_TO_MERCHANT"
+            ],
+            "readOnly": true,
+            "description": "State of payment collection and settlement"
+          },
+          "merchant_invoice": {
+            "type": "integer",
+            "readOnly": true,
+            "description": "Identifier of the payment invoice"
           }
+        },
+        "required": [
+          "workflow", "customer", "customer_location",
+          "merchant_location", "number_of_packages"
         ]
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "Customer": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "id": {
+            "type": "number",
+            "readOnly": true,
+            "description": "Unique customer identifier"
           },
-          "message": {
-            "type": "string"
+          "name": {
+            "type": "string",
+            "description": "Full customer name"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "Primary phone number including country code"
+          },
+          "secondary_phone_number": {
+            "type": "string",
+            "description": "Alternative phone number including country code"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Customer's email address"
           }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+        },
+        "required": ["name", "phone_number"]
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "readOnly": true,
+            "description": "Unique location identifier"
+          },
+          "customer": {
+            "type": "number",
+            "description": "Related customer identifier"
+          },
+          "address": {
+            "type": "string",
+            "description": "Customer location address"
+          },
+          "city": {
+            "type": "string",
+            "description": "Customer location's city"
+          },
+          "directions": {
+            "type": "string",
+            "description": "Additional directions"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Google Maps URL"
+          },
+          "place_id": {
+            "type": "string",
+            "description": "Place ID from Google Maps"
+          },
+          "district": {
+            "type": "string",
+            "enum": [
+              "Zahleh", "Hasbaya", "Baalbek", "Jezzine", "Baabda", "Jbeil", "Zgharta",
+              "Bint Jbeil", "Hermel", "Marjeyoun", "Bsharri", "Aley", "Rashaya",
+              "Miniyeh-Danniyeh", "Tripoli", "Tyre", "Nabatieh", "Chouf", "Maatn",
+              "Western Beqaa", "Akkar", "Sidon", "Batroun", "Keserwan", "Koura", "Beirut"
+            ],
+            "readOnly": true,
+            "description": "District"
+          },
+          "governorate": {
+            "type": "string",
+            "enum": [
+              "Beqaa", "Nabatieh", "South", "Mount Lebanon", "North", "Beirut"
+            ],
+            "readOnly": true,
+            "description": "Governorate"
+          }
+        },
+        "required": ["customer", "address", "city"]
       }
     }
   }

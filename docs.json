@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Mint Starter Kit",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#9B5DE5",
+    "light": "#7038B2",
+    "dark": "#7038B2"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -39,6 +39,9 @@
         "groups": [
           {
             "group": "API Documentation",
+            "openapi": {
+              "source": "/api-reference/openapi.json"
+            },
             "pages": [
               "api-reference/introduction"
             ]
