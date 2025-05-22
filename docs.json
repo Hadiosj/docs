@@ -39,9 +39,6 @@
         "groups": [
           {
             "group": "API Documentation",
-            "openapi": {
-              "source": "/api-reference/openapi.json"
-            },
             "pages": [
               "api-reference/introduction"
             ]
