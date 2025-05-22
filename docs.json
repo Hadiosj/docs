@@ -7,7 +7,7 @@
     "light": "#7038B2",
     "dark": "#7038B2"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "navigation": {
     "groups": [
       {
@@ -25,7 +25,7 @@
         }
       },
       {
-        "group": "Essentials",
+        "group": "Unused Essentials",
         "pages": [
           "essentials/markdown",
           "essentials/code",
