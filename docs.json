@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "linden",
   "name": "Parcel Tracer",
   "colors": {
     "primary": "#9B5DE5",
