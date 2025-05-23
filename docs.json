@@ -27,6 +27,14 @@
                   "user-guides/for-delivery-companies/orders/listing-orders",
                   "user-guides/for-delivery-companies/orders/view-order-details"
                 ]
+              },
+              {
+                "group": "Customers",
+                "pages": [
+                  "user-guides/for-delivery-companies/orders/introduction",
+                  "user-guides/for-delivery-companies/orders/create-customer",
+                  "user-guides/for-delivery-companies/orders/listing-customer"
+                ]
               }
             ]
           }

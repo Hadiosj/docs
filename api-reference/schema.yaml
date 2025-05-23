@@ -660,16 +660,27 @@ components:
           $ref: '#/components/schemas/WorkflowEnum'
         tracking_link:
           type: string
+          format: uri
           readOnly: true
         is_critical:
           type: boolean
           title: Critical
         customer:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/Customer'
+          writeOnly: true
         customer_location:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/ExternalLocation'
+          writeOnly: true
+        resolved_customer:
+          allOf:
+          - $ref: '#/components/schemas/Customer'
+          readOnly: true
+        resolved_customer_location:
+          allOf:
+          - $ref: '#/components/schemas/ExternalLocation'
+          readOnly: true
         merchant_location:
           type: integer
           nullable: true
@@ -714,6 +725,8 @@ components:
       - merchant_invoice
       - order_id
       - payment_state
+      - resolved_customer
+      - resolved_customer_location
       - tracking_link
     PaginatedCustomerList:
       type: object
