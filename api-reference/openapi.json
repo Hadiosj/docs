@@ -6,17 +6,13 @@
     "version": "1.0.0",
     "contact": {
       "name": "API Support",
-      "email": "support@deliveryapi.com"
+      "email": "info@parceltracer.app"
     }
   },
   "servers": [
     {
-      "url": "https://api.deliverytracking.com/api/v1/external",
+      "url": "https://prod.parceltracer.app/api/v1/external",
       "description": "Production server"
-    },
-    {
-      "url": "https://staging-api.deliverytracking.com/api/v1/external",
-      "description": "Staging server"
     }
   ],
   "security": [

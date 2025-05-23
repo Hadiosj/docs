@@ -11,17 +11,22 @@
   "navigation": {
     "groups": [
       {
-        "group": "App documentation",
+        "group": "User Guides",
         "pages": [
           "index",
-          "quickstart",
-          "development"
+          {
+            "group": "For Delivery Companies",
+            "pages": [
+              "user-guides/for-delivery-companies/create-account",
+              "user-guides/for-delivery-companies/main-dashboard"
+            ]
+          }
         ]
       },
       {
         "group": "API Reference",
         "openapi": {
-          "source": "/api-reference/openapi.json"
+          "source": "/api-reference/schema.yaml"
         }
       },
       {
@@ -38,8 +43,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/main-logo.png",
-    "dark": "/logo/main-logo.png"
+    "light": "/logo/home_page.png",
+    "dark": "/logo/home_page.png"
   },
   "navbar": {
     "links": [
