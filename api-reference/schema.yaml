@@ -5,7 +5,10 @@ info:
 paths:
   /api/v1/external/customers/:
     get:
-      operationId: customers_list
+      operationId: list_customers
+      description: Retrieve a paginated list of customers associated with the authenticated
+        merchant.
+      summary: List customers
       parameters:
       - name: page
         required: false
@@ -20,7 +23,7 @@ paths:
         schema:
           type: integer
       tags:
-      - customers
+      - Customers
       security:
       - MerchantAPIKey: []
       responses:
@@ -31,9 +34,12 @@ paths:
                 $ref: '#/components/schemas/PaginatedCustomerList'
           description: ''
     post:
-      operationId: customers_create
+      operationId: create_customer
+      description: Create a new customer or update an existing one if the phone number
+        already exists.
+      summary: Create customer
       tags:
-      - customers
+      - Customers
       requestBody:
         content:
           application/json:
@@ -57,7 +63,9 @@ paths:
           description: ''
   /api/v1/external/customers/{customer_pk}/locations/:
     get:
-      operationId: customers_locations_list
+      operationId: list_customer_locations
+      description: Retrieve all locations associated with the given customer.
+      summary: List customer locations
       parameters:
       - in: path
         name: customer_pk
@@ -77,7 +85,7 @@ paths:
         schema:
           type: integer
       tags:
-      - customers
+      - Customer Locations
       security:
       - MerchantAPIKey: []
       responses:
@@ -88,7 +96,9 @@ paths:
                 $ref: '#/components/schemas/PaginatedExternalLocationList'
           description: ''
     post:
-      operationId: customers_locations_create
+      operationId: create_customer_location
+      description: Create a new location for the specified customer.
+      summary: Create customer location
       parameters:
       - in: path
         name: customer_pk
@@ -96,7 +106,7 @@ paths:
           type: integer
         required: true
       tags:
-      - customers
+      - Customer Locations
       requestBody:
         content:
           application/json:
@@ -120,7 +130,10 @@ paths:
           description: ''
   /api/v1/external/customers/{customer_pk}/locations/{location_pk}/:
     patch:
-      operationId: customers_locations_partial_update
+      operationId: update_customer_location
+      description: Partially update an existing location associated with the specified
+        customer.
+      summary: Update customer location
       parameters:
       - in: path
         name: customer_pk
@@ -133,7 +146,7 @@ paths:
           type: integer
         required: true
       tags:
-      - customers
+      - Customer Locations
       requestBody:
         content:
           application/json:
@@ -154,29 +167,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ExternalLocation'
           description: ''
-    delete:
-      operationId: customers_locations_destroy
-      parameters:
-      - in: path
-        name: customer_pk
-        schema:
-          type: integer
-        required: true
-      - in: path
-        name: location_pk
-        schema:
-          type: integer
-        required: true
-      tags:
-      - customers
-      security:
-      - MerchantAPIKey: []
-      responses:
-        '204':
-          description: No response body
   /api/v1/external/customers/{id}/:
     get:
-      operationId: customers_retrieve
+      operationId: retrieve_customer
+      description: Retrieve the details of a specific customer by ID.
+      summary: Retrieve customer
       parameters:
       - in: path
         name: id
@@ -184,38 +179,7 @@ paths:
           type: integer
         required: true
       tags:
-      - customers
-      security:
-      - MerchantAPIKey: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
-          description: ''
-    put:
-      operationId: customers_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - customers
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Customer'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Customer'
-        required: true
+      - Customers
       security:
       - MerchantAPIKey: []
       responses:
@@ -226,7 +190,9 @@ paths:
                 $ref: '#/components/schemas/Customer'
           description: ''
     patch:
-      operationId: customers_partial_update
+      operationId: partial_update_customer
+      description: Partially update the details of a customer by ID.
+      summary: Partially update customer
       parameters:
       - in: path
         name: id
@@ -234,7 +200,7 @@ paths:
           type: integer
         required: true
       tags:
-      - customers
+      - Customers
       requestBody:
         content:
           application/json:
@@ -257,14 +223,9 @@ paths:
           description: ''
   /api/v1/external/orders/:
     get:
-      operationId: orders_list
-      description: |-
-        **Order** represents a delivery from merchant to customer, or a return.
-
-        - If `customer.id` is provided, an existing customer is updated.
-        - If only `phone_number` is provided, a customer is looked up or created.
-        - `customer_location.id` works similarly, but must belong to the customer.
-        - `cod` is a list of currency/amount pairs. Example: [['USD', '10'], ['LBP', '1000000']]
+      operationId: list_orders
+      description: Retrieve a paginated list of orders.
+      summary: List orders
       parameters:
       - name: page
         required: false
@@ -279,7 +240,7 @@ paths:
         schema:
           type: integer
       tags:
-      - orders
+      - Orders
       security:
       - MerchantAPIKey: []
       responses:
@@ -308,16 +269,11 @@ paths:
                   summary: Create new order with embedded customer and location
           description: ''
     post:
-      operationId: orders_create
-      description: |-
-        **Order** represents a delivery from merchant to customer, or a return.
-
-        - If `customer.id` is provided, an existing customer is updated.
-        - If only `phone_number` is provided, a customer is looked up or created.
-        - `customer_location.id` works similarly, but must belong to the customer.
-        - `cod` is a list of currency/amount pairs. Example: [['USD', '10'], ['LBP', '1000000']]
+      operationId: create_order
+      description: Create a new order.
+      summary: Create order
       tags:
-      - orders
+      - Orders
       requestBody:
         content:
           application/json:
@@ -367,6 +323,139 @@ paths:
                     number_of_packages: 1
                   summary: Create new order with embedded customer and location
           description: ''
+  /api/v1/external/orders/{order_id}/:
+    get:
+      operationId: retrieve_order
+      description: Retrieve the details of a specific order by ID.
+      summary: Retrieve order
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Orders
+      security:
+      - MerchantAPIKey: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalOrder'
+              examples:
+                SampleOrder:
+                  value:
+                    workflow: STANDARD
+                    customer:
+                      phone_number: '+96171234567'
+                    customer_location:
+                      address: Beirut, Hamra
+                    merchant_location: 2
+                    cod:
+                    - - USD
+                      - '10'
+                    number_of_packages: 1
+                  summary: Create new order with embedded customer and location
+          description: ''
+    patch:
+      operationId: partial_update_order
+      description: Update the details of a order by ID.
+      summary: Update order
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExternalOrder'
+            examples:
+              SampleOrder:
+                value:
+                  workflow: STANDARD
+                  customer:
+                    phone_number: '+96171234567'
+                  customer_location:
+                    address: Beirut, Hamra
+                  merchant_location: 2
+                  cod:
+                  - - USD
+                    - '10'
+                  number_of_packages: 1
+                summary: Create new order with embedded customer and location
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExternalOrder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExternalOrder'
+      security:
+      - MerchantAPIKey: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalOrder'
+              examples:
+                SampleOrder:
+                  value:
+                    workflow: STANDARD
+                    customer:
+                      phone_number: '+96171234567'
+                    customer_location:
+                      address: Beirut, Hamra
+                    merchant_location: 2
+                    cod:
+                    - - USD
+                      - '10'
+                    number_of_packages: 1
+                  summary: Create new order with embedded customer and location
+          description: ''
+  /api/v1/external/orders/{order_id}/cancel/:
+    post:
+      operationId: cancel_order
+      description: Cancel an order identified by `order_id`. Will fail if the order
+        cannot be cancelled.
+      summary: Cancel order
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Orders
+      security:
+      - MerchantAPIKey: []
+      responses:
+        '204':
+          description: Order successfully cancelled.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Permission Denied
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not Found
 components:
   schemas:
     Customer:
@@ -477,6 +566,13 @@ components:
         * `Keserwan` - Keserwan
         * `Koura` - Koura
         * `Beirut` - Beirut
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
     ExternalLocation:
       type: object
       properties:
@@ -561,8 +657,8 @@ components:
             ''123.5'']]'
         number_of_packages:
           type: integer
-          maximum: 2147483647
-          minimum: 0
+          maximum: 99
+          minimum: 1
         description:
           type: string
           maxLength: 300
@@ -694,6 +790,90 @@ components:
           type: string
         directions:
           type: string
+    PatchedExternalOrder:
+      type: object
+      properties:
+        order_id:
+          type: string
+          readOnly: true
+          nullable: true
+        reference_id:
+          type: string
+          pattern: ^([A-Za-z0-9]|\.|-)*$
+          maxLength: 40
+        is_exchange:
+          type: boolean
+        workflow:
+          $ref: '#/components/schemas/WorkflowEnum'
+        tracking_link:
+          type: string
+          format: uri
+          readOnly: true
+        is_critical:
+          type: boolean
+          title: Critical
+        customer:
+          allOf:
+          - $ref: '#/components/schemas/Customer'
+          writeOnly: true
+          description: |-
+            Customer object identifying the customer for the order.
+            - To identify an existing customer, provide the unique 'id' field. Other fields will update the existing record.
+            - Alternatively, if 'id' is not provided, provide the unique 'phone_number' to identify the customer.
+            - If neither 'id' nor existing 'phone_number' is found, a new customer will be created, and all required customer fields must be provided.
+        customer_location:
+          allOf:
+          - $ref: '#/components/schemas/ExternalLocation'
+          writeOnly: true
+          description: |-
+            Customer location object for order delivery or pickup.
+            - To identify an existing location, provide the unique 'id'. Other fields will update that location.
+            - If 'id' is not provided, a new location will be created and all required fields must be present.
+            - The location must belong to the specified customer, else the request will be rejected.
+        resolved_customer:
+          allOf:
+          - $ref: '#/components/schemas/Customer'
+          readOnly: true
+        resolved_customer_location:
+          allOf:
+          - $ref: '#/components/schemas/ExternalLocation'
+          readOnly: true
+        merchant_location:
+          type: integer
+          nullable: true
+        cod:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+            maxItems: 2
+            minItems: 2
+          description: 'Total amount to be collected upon delivery. Example: [[''USD'',
+            ''123.5'']]'
+        number_of_packages:
+          type: integer
+          maximum: 99
+          minimum: 1
+        description:
+          type: string
+          maxLength: 300
+        notes:
+          type: string
+        return_reason:
+          type: string
+          maxLength: 300
+        delivery_state:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryStateEnum'
+          readOnly: true
+        payment_state:
+          type: string
+          readOnly: true
+        merchant_invoice:
+          type: integer
+          readOnly: true
+          nullable: true
     WorkflowEnum:
       enum:
       - STANDARD
