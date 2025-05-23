@@ -31,9 +31,9 @@
               {
                 "group": "Customers",
                 "pages": [
-                  "user-guides/for-delivery-companies/orders/introduction",
-                  "user-guides/for-delivery-companies/orders/create-customer",
-                  "user-guides/for-delivery-companies/orders/listing-customer"
+                  "user-guides/for-delivery-companies/customers/introduction",
+                  "user-guides/for-delivery-companies/customers/create-customer",
+                  "user-guides/for-delivery-companies/customers/listing-customer"
                 ]
               }
             ]
