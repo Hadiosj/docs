@@ -258,6 +258,13 @@ paths:
   /api/v1/external/orders/:
     get:
       operationId: orders_list
+      description: |-
+        **Order** represents a delivery from merchant to customer, or a return.
+
+        - If `customer.id` is provided, an existing customer is updated.
+        - If only `phone_number` is provided, a customer is looked up or created.
+        - `customer_location.id` works similarly, but must belong to the customer.
+        - `cod` is a list of currency/amount pairs. Example: [['USD', '10'], ['LBP', '1000000']]
       parameters:
       - name: page
         required: false
@@ -281,9 +288,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedExternalOrderList'
+              examples:
+                SampleOrder:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                    - workflow: STANDARD
+                      customer:
+                        phone_number: '+96171234567'
+                      customer_location:
+                        address: Beirut, Hamra
+                      merchant_location: 2
+                      cod:
+                      - - USD
+                        - '10'
+                      number_of_packages: 1
+                  summary: Create new order with embedded customer and location
           description: ''
     post:
       operationId: orders_create
+      description: |-
+        **Order** represents a delivery from merchant to customer, or a return.
+
+        - If `customer.id` is provided, an existing customer is updated.
+        - If only `phone_number` is provided, a customer is looked up or created.
+        - `customer_location.id` works similarly, but must belong to the customer.
+        - `cod` is a list of currency/amount pairs. Example: [['USD', '10'], ['LBP', '1000000']]
       tags:
       - orders
       requestBody:
@@ -291,6 +323,20 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ExternalOrder'
+            examples:
+              SampleOrder:
+                value:
+                  workflow: STANDARD
+                  customer:
+                    phone_number: '+96171234567'
+                  customer_location:
+                    address: Beirut, Hamra
+                  merchant_location: 2
+                  cod:
+                  - - USD
+                    - '10'
+                  number_of_packages: 1
+                summary: Create new order with embedded customer and location
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/ExternalOrder'
@@ -306,6 +352,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExternalOrder'
+              examples:
+                SampleOrder:
+                  value:
+                    workflow: STANDARD
+                    customer:
+                      phone_number: '+96171234567'
+                    customer_location:
+                      address: Beirut, Hamra
+                    merchant_location: 2
+                    cod:
+                    - - USD
+                      - '10'
+                    number_of_packages: 1
+                  summary: Create new order with embedded customer and location
           description: ''
 components:
   schemas:
