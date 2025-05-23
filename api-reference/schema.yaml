@@ -43,6 +43,7 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Customer'
+        required: true
       responses:
         '201':
           content:
@@ -200,6 +201,7 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Customer'
+        required: true
       responses:
         '200':
           content:
@@ -511,28 +513,24 @@ components:
   schemas:
     Customer:
       type: object
-      description: |-
-        A ModelSerializer that takes an additional `fields` argument that
-        controls which fields should be displayed.
       properties:
         id:
           type: integer
           readOnly: true
         name:
           type: string
-          maxLength: 30
+          maxLength: 255
         phone_number:
           type: string
-          maxLength: 30
         secondary_phone_number:
           type: string
-          nullable: true
-          maxLength: 30
         email:
           type: string
-          maxLength: 100
+          format: email
       required:
       - id
+      - name
+      - phone_number
     DeliveryStateEnum:
       enum:
       - CREATED
@@ -628,19 +626,18 @@ components:
           type: integer
         address:
           type: string
-          maxLength: 400
-        city:
-          type: string
-          maxLength: 200
-        directions:
-          type: string
-          maxLength: 400
         district:
           $ref: '#/components/schemas/DistrictEnum'
         governorate:
           type: string
           readOnly: true
+        city:
+          type: string
+        directions:
+          type: string
       required:
+      - address
+      - city
       - district
       - governorate
     ExternalOrder:
@@ -799,26 +796,20 @@ components:
             $ref: '#/components/schemas/ExternalOrder'
     PatchedCustomer:
       type: object
-      description: |-
-        A ModelSerializer that takes an additional `fields` argument that
-        controls which fields should be displayed.
       properties:
         id:
           type: integer
           readOnly: true
         name:
           type: string
-          maxLength: 30
+          maxLength: 255
         phone_number:
           type: string
-          maxLength: 30
         secondary_phone_number:
           type: string
-          nullable: true
-          maxLength: 30
         email:
           type: string
-          maxLength: 100
+          format: email
     PatchedExternalLocation:
       type: object
       properties:
@@ -826,18 +817,15 @@ components:
           type: integer
         address:
           type: string
-          maxLength: 400
-        city:
-          type: string
-          maxLength: 200
-        directions:
-          type: string
-          maxLength: 400
         district:
           $ref: '#/components/schemas/DistrictEnum'
         governorate:
           type: string
           readOnly: true
+        city:
+          type: string
+        directions:
+          type: string
     WorkflowEnum:
       enum:
       - STANDARD

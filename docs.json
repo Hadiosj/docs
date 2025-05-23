@@ -35,6 +35,25 @@
                   "user-guides/for-delivery-companies/customers/create-customer",
                   "user-guides/for-delivery-companies/customers/listing-customer"
                 ]
+              },
+              {
+                "group": "Merchants",
+                "pages": [
+                  "user-guides/for-delivery-companies/merchants/introduction",
+                  "user-guides/for-delivery-companies/merchants/create-merchant",
+                  "user-guides/for-delivery-companies/merchants/listing-merchants",
+                  "user-guides/for-delivery-companies/merchants/merchant-details"
+                ]
+              },
+              {
+                "group": "Drivers",
+                "pages": [
+                  "user-guides/for-delivery-companies/drivers/introduction",
+                  "user-guides/for-delivery-companies/drivers/create-driver",
+                  "user-guides/for-delivery-companies/drivers/listing-drivers",
+                  "user-guides/for-delivery-companies/drivers/driver-details",
+                  "user-guides/for-delivery-companies/drivers/assigning-orders"
+                ]
               }
             ]
           }
