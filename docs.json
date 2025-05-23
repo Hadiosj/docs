@@ -54,7 +54,42 @@
                   "user-guides/for-delivery-companies/drivers/driver-details",
                   "user-guides/for-delivery-companies/drivers/assigning-orders"
                 ]
+              },
+              {
+                "group": "Employees",
+                "pages": [
+                  "user-guides/for-delivery-companies/employees/introduction",
+                  "user-guides/for-delivery-companies/employees/create-employee",
+                  "user-guides/for-delivery-companies/employees/listing-employees",
+                  "user-guides/for-delivery-companies/employees/employee-details"
+                ]
+              },
+             {
+                "group": "Branches",
+                "pages": [
+                  "user-guides/for-delivery-companies/branches/introduction",
+                  "user-guides/for-delivery-companies/branches/create-branch",
+                  "user-guides/for-delivery-companies/branches/listing-branches",
+                  "user-guides/for-delivery-companies/branches/branch-details"
+                ]
+              },
+              {
+                "group": "Accounting",
+                "pages": [
+                  "user-guides/for-delivery-companies/accounting/introduction",
+                  "user-guides/for-delivery-companies/accounting/driver-accounting",
+                  "user-guides/for-delivery-companies/accounting/merchant-accounting"
+                ]
               }
+            ]
+          },
+          {
+            "group": "For Drivers",
+            "pages": [
+              "user-guides/for-drivers/create-an-account",
+              "user-guides/for-drivers/join-an-organisation",
+              "user-guides/for-drivers/order-lookup",
+              "user-guides/for-drivers/invoices"
             ]
           }
         ]
