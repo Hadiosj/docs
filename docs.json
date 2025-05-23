@@ -18,7 +18,13 @@
             "group": "For Delivery Companies",
             "pages": [
               "user-guides/for-delivery-companies/create-account",
-              "user-guides/for-delivery-companies/main-dashboard"
+              "user-guides/for-delivery-companies/main-dashboard",
+              {
+                "group": "Orders",
+                "pages": [
+                  "user-guides/for-delivery-companies/orders/introduction"
+                ]
+              }
             ]
           }
         ]

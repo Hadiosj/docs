@@ -5,7 +5,7 @@ info:
 paths:
   /api/v1/external/customers/:
     get:
-      operationId: external_customers_list
+      operationId: customers_list
       description: |-
         Customer Model schema:
         id:
@@ -50,7 +50,7 @@ paths:
         schema:
           type: integer
       tags:
-      - external
+      - customers
       responses:
         '200':
           content:
@@ -59,7 +59,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedCustomerList'
           description: ''
     post:
-      operationId: external_customers_create
+      operationId: customers_create
       description: |-
         Customer Model schema:
         id:
@@ -91,7 +91,7 @@ paths:
             - read_only
             - description: list of customer locations
       tags:
-      - external
+      - customers
       requestBody:
         content:
           application/json:
@@ -111,7 +111,7 @@ paths:
                 $ref: '#/components/schemas/Customer'
           description: ''
     patch:
-      operationId: external_customers_partial_update
+      operationId: customers_partial_update
       description: |-
         Customer Model schema:
         id:
@@ -143,7 +143,7 @@ paths:
             - read_only
             - description: list of customer locations
       tags:
-      - external
+      - customers
       requestBody:
         content:
           application/json:
@@ -164,7 +164,7 @@ paths:
           description: ''
   /api/v1/external/customers/{customer_pk}/locations/:
     get:
-      operationId: external_customers_locations_list
+      operationId: customers_locations_list
       parameters:
       - in: path
         name: customer_pk
@@ -184,7 +184,7 @@ paths:
         schema:
           type: integer
       tags:
-      - external
+      - customers
       responses:
         '200':
           content:
@@ -193,7 +193,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedExternalLocationList'
           description: ''
     post:
-      operationId: external_customers_locations_create
+      operationId: customers_locations_create
       parameters:
       - in: path
         name: customer_pk
@@ -201,7 +201,7 @@ paths:
           type: integer
         required: true
       tags:
-      - external
+      - customers
       requestBody:
         content:
           application/json:
@@ -223,7 +223,7 @@ paths:
           description: ''
   /api/v1/external/customers/{customer_pk}/locations/{location_pk}/:
     patch:
-      operationId: external_customers_locations_partial_update
+      operationId: customers_locations_partial_update
       parameters:
       - in: path
         name: customer_pk
@@ -236,7 +236,7 @@ paths:
           type: integer
         required: true
       tags:
-      - external
+      - customers
       requestBody:
         content:
           application/json:
@@ -256,7 +256,7 @@ paths:
                 $ref: '#/components/schemas/ExternalLocation'
           description: ''
     delete:
-      operationId: external_customers_locations_destroy
+      operationId: customers_locations_destroy
       parameters:
       - in: path
         name: customer_pk
@@ -269,13 +269,13 @@ paths:
           type: integer
         required: true
       tags:
-      - external
+      - customers
       responses:
         '204':
           description: No response body
   /api/v1/external/customers/{id}/:
     get:
-      operationId: external_customers_list_2
+      operationId: customers_list_2
       description: |-
         Customer Model schema:
         id:
@@ -325,7 +325,7 @@ paths:
         schema:
           type: integer
       tags:
-      - external
+      - customers
       responses:
         '200':
           content:
@@ -334,7 +334,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedCustomerList'
           description: ''
     post:
-      operationId: external_customers_create_2
+      operationId: customers_create_2
       description: |-
         Customer Model schema:
         id:
@@ -372,7 +372,7 @@ paths:
           type: integer
         required: true
       tags:
-      - external
+      - customers
       requestBody:
         content:
           application/json:
@@ -392,7 +392,7 @@ paths:
                 $ref: '#/components/schemas/Customer'
           description: ''
     patch:
-      operationId: external_customers_partial_update_2
+      operationId: customers_partial_update_2
       description: |-
         Customer Model schema:
         id:
@@ -430,7 +430,7 @@ paths:
           type: integer
         required: true
       tags:
-      - external
+      - customers
       requestBody:
         content:
           application/json:
@@ -451,7 +451,7 @@ paths:
           description: ''
   /api/v1/external/orders/:
     get:
-      operationId: external_orders_list
+      operationId: orders_list
       description: |-
         Order model schema:
             order_id:
@@ -578,7 +578,7 @@ paths:
         schema:
           type: integer
       tags:
-      - external
+      - orders
       responses:
         '200':
           content:
@@ -587,7 +587,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedExternalOrderList'
           description: ''
     post:
-      operationId: external_orders_create
+      operationId: orders_create
       description: |-
         Order model schema:
             order_id:
@@ -701,7 +701,7 @@ paths:
                 - read only field
                 - identifier of the payment invoice
       tags:
-      - external
+      - orders
       requestBody:
         content:
           application/json:
