@@ -1142,6 +1142,17 @@ components:
             minItems: 2
           description: 'Total amount to be collected upon delivery. Example: [[''USD'',
             ''123.5'']]'
+        delivery_fee:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+            maxItems: 2
+            minItems: 2
+          readOnly: true
+          description: Delivery fees charged on the delivery operation. Irrelevant
+            in case of `RETURN` orders.
         number_of_packages:
           type: integer
           maximum: 99
@@ -1169,6 +1180,7 @@ components:
       - cod
       - customer
       - customer_location
+      - delivery_fee
       - delivery_state
       - merchant_invoice
       - order_id

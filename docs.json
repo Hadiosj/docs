@@ -11,10 +11,11 @@
   "navigation": {
     "groups": [
       {
-        "group": "Entities",
+        "group": "Models",
         "pages": [
-          "entities/customers",
-          "entities/orders"
+          "resources/customers",
+          "resources/customer-locations",
+          "resources/orders"
         ]
       },
       {
