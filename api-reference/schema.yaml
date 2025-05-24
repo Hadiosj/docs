@@ -6,10 +6,15 @@ paths:
   /api/v1/external/customers/:
     get:
       operationId: list_customers
-      description: Retrieve a paginated list of customers associated with the authenticated
-        merchant.
+      description: Retrieve a paginated list of customers.
       summary: List customers
       parameters:
+      - in: query
+        name: include_locations
+        schema:
+          type: boolean
+          default: false
+        description: If true, includes locations data for each customer.
       - name: page
         required: false
         in: query
@@ -32,11 +37,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedCustomerList'
+              examples:
+                CustomerListExample:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                    - - id: 1
+                        name: John Doe
+                        phone_number: '+1234567890'
+                        secondary_phone_number: ''
+                        email: john@example.com
+                        locations:
+                        - id: 10
+                          address: 123 Main St
+                          city: Beirut
+                          district: Beirut
+                          directions: ''
+                      - id: 2
+                        name: Jane Smith
+                        phone_number: '+1987654321'
+                        secondary_phone_number: ''
+                        email: jane@example.com
+                        locations: []
+                  summary: A sample list of customers
           description: ''
     post:
       operationId: create_customer
-      description: Create a new customer or update an existing one if the phone number
-        already exists.
+      description: Create a new customer using the customer's unique phone number.
       summary: Create customer
       tags:
       - Customers
@@ -60,7 +89,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Customer'
-          description: ''
+              examples:
+                CustomerCreatedSuccessfully:
+                  value:
+                    id: 9721
+                    name: Yasser
+                    phone_number: '+9617322112'
+                    secondary_phone_number: ''
+                    email: yasser@email.com
+                  summary: Example of resource created successfully
+          description: Successful creation
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ValidationError:
+                  value:
+                    error: 'true'
+                    message: Validation failed.
+                    details: 'phone_number: This field is required.'
+                  summary: Example of validation error response
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ServerError:
+                  value:
+                    error: 'true'
+                    message: Unexpected error.
+                    details: Internal server error
+                  summary: Example of internal server error response
+          description: Server error
   /api/v1/external/customers/{customer_pk}/locations/:
     get:
       operationId: list_customer_locations
@@ -94,6 +158,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedExternalLocationList'
+              examples:
+                CustomerListExample:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                    - - id: 9688
+                        address: first address
+                        district: Beirut
+                        governorate: Beirut
+                        city: Beirut
+                        directions: ''
+                      - id: 9689
+                        address: second address
+                        district: Beirut
+                        governorate: Beirut
+                        city: Beirut
+                        directions: ''
+                  summary: A sample list of customers
           description: ''
     post:
       operationId: create_customer_location
@@ -122,13 +206,98 @@ paths:
       security:
       - MerchantAPIKey: []
       responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalLocation'
+              examples:
+                LocationCreatedSuccessfully:
+                  value:
+                    id: 9691
+                    address: Third address
+                    district: Beirut
+                    governorate: Beirut
+                    city: Beirut
+                    directions: ''
+                  summary: Example of resource created successfully
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ValidationError:
+                  value:
+                    error: 'true'
+                    message: Validation failed.
+                    details: 'district: Beiruts is not a valid choice.'
+                  summary: Example of validation error response
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ServerError:
+                  value:
+                    error: 'true'
+                    message: Unexpected error.
+                    details: Internal server error
+                  summary: Example of internal server error response
+          description: Server error
+  /api/v1/external/customers/{customer_pk}/locations/{location_pk}/:
+    get:
+      operationId: retrieve_customer_location
+      description: Retrieve the details of a specific customer location.
+      summary: Retrieve customer location
+      parameters:
+      - in: path
+        name: customer_pk
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: location_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Customer Locations
+      security:
+      - MerchantAPIKey: []
+      responses:
         '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExternalLocation'
-          description: ''
-  /api/v1/external/customers/{customer_pk}/locations/{location_pk}/:
+              examples:
+                LocationRetrieved:
+                  value:
+                    id: 9691
+                    address: Third address
+                    district: Beirut
+                    governorate: Beirut
+                    city: Beirut
+                    directions: ''
+                  summary: Example of resource retrieved successfully
+          description: Successful retrieval
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  value:
+                    error: 'true'
+                    message: Resource not found.
+                    details: 'detail: Not found.'
+                  summary: Example of resource not found error
+          description: Customer location not found
     patch:
       operationId: update_customer_location
       description: Partially update an existing location associated with the specified
@@ -166,7 +335,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExternalLocation'
-          description: ''
+              examples:
+                LocationUpdatedSuccessfully:
+                  value:
+                    id: 9691
+                    address: Third address
+                    district: Beirut
+                    governorate: Beirut
+                    city: Beirut
+                    directions: ''
+                  summary: Example of resource created successfully
+          description: Successful update
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  value:
+                    error: 'true'
+                    message: Resource not found.
+                    details: 'detail: Not found.'
+                  summary: Example of resource not found error
+          description: Customer location not found
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ValidationError:
+                  value:
+                    error: 'true'
+                    message: Validation failed.
+                    details: 'district: Beiruts is not a valid choice.'
+                  summary: Example of validation error response
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ServerError:
+                  value:
+                    error: 'true'
+                    message: Unexpected error.
+                    details: Internal server error
+                  summary: Example of internal server error response
+          description: Server error
   /api/v1/external/customers/{id}/:
     get:
       operationId: retrieve_customer
@@ -188,11 +406,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Customer'
-          description: ''
+              examples:
+                CustomerRetrieved:
+                  value:
+                    id: 9721
+                    name: Yasser
+                    phone_number: '+9617322112'
+                    secondary_phone_number: ''
+                    email: yasser@email.com
+                  summary: Example of resource retrieved successfully
+          description: Successful retrieval
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+              examples:
+                NotFoundError:
+                  value:
+                    error: 'true'
+                    message: Resource not found.
+                    details: 'detail: Not found.'
+                  summary: Example of resource not found error
+          description: Customer not found
     patch:
       operationId: partial_update_customer
-      description: Partially update the details of a customer by ID.
-      summary: Partially update customer
+      description: Update the details of a customer.
+      summary: Update customer
       parameters:
       - in: path
         name: id
@@ -220,7 +460,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Customer'
-          description: ''
+              examples:
+                CustomerCreatedSuccessfully:
+                  value:
+                    id: 9721
+                    name: Joe
+                    phone_number: '+9617322112'
+                    secondary_phone_number: ''
+                    email: joe@email.com
+                  summary: Example of resource created successfully
+          description: Successful patch
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  value:
+                    error: 'true'
+                    message: Resource not found.
+                    details: 'detail: Not found.'
+                  summary: Example of resource not found error
+          description: Customer not found
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ValidationError:
+                  value:
+                    error: 'true'
+                    message: Validation failed.
+                    details: 'phone_number: This field is required.'
+                  summary: Example of validation error response
+          description: Validation failure
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ServerError:
+                  value:
+                    error: 'true'
+                    message: Unexpected error.
+                    details: Internal server error
+                  summary: Example of internal server error response
+          description: Server error
   /api/v1/external/orders/:
     get:
       operationId: list_orders
@@ -250,27 +538,83 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedExternalOrderList'
               examples:
-                SampleOrder:
+                OrdersListing:
                   value:
                     count: 123
                     next: http://api.example.org/accounts/?page=4
                     previous: http://api.example.org/accounts/?page=2
                     results:
-                    - workflow: STANDARD
-                      customer:
-                        phone_number: '+96171234567'
-                      customer_location:
-                        address: Beirut, Hamra
-                      merchant_location: 2
-                      cod:
-                      - - USD
-                        - '10'
-                      number_of_packages: 1
-                  summary: Create new order with embedded customer and location
+                    - - order_id: '11'
+                        reference_id: ''
+                        is_exchange: 'false'
+                        workflow: STANDARD
+                        tracking_link: https://prod.parceltracer.app/tracking/xxxxx-yyyyyyy
+                        is_critical: 'false'
+                        merchant_location: 1
+                        cod:
+                        - - USD
+                          - '20.00'
+                        number_of_packages: 1
+                        description: ''
+                        notes: ''
+                        return_reason: ''
+                        delivery_state: CREATED
+                        payment_state: UNPAID
+                        merchant_invoice: 'null'
+                        customer:
+                          id: 6635
+                          name: Joe
+                          phone_number: '+9613123456'
+                          secondary_phone_number: ''
+                          email: joe@email.com
+                        customer_location:
+                          id: 6635
+                          address: Basta el faw2a
+                          district: Beirut
+                          governorate: Beirut
+                          city: Safad el Battikh
+                          directions: ''
+                      - order_id: '17'
+                        reference_id: ''
+                        is_exchange: 'false'
+                        workflow: STANDARD
+                        tracking_link: https://prod.parceltracer.app/tracking/xxxxx-yyyyyyy
+                        is_critical: 'false'
+                        merchant_location: 1
+                        cod:
+                        - - USD
+                          - '20.00'
+                        number_of_packages: 1
+                        description: ''
+                        notes: ''
+                        return_reason: ''
+                        delivery_state: CREATED
+                        payment_state: UNPAID
+                        merchant_invoice: 'null'
+                        customer:
+                          id: 6635
+                          name: Sara
+                          phone_number: '+9613853335'
+                          secondary_phone_number: ''
+                          email: ''
+                        customer_location:
+                          id: 6635
+                          address: Beirut Hamra
+                          district: Beirut
+                          governorate: Beirut
+                          city: Beirut
+                          directions: ''
+                  summary: Order listing.
           description: ''
     post:
       operationId: create_order
-      description: Create a new order.
+      description: |-
+        Create a new order with customer and location details.
+
+        - If `customer.id` is provided, an existing customer is updated.
+        - If only `phone_number` is provided, a customer is looked up or created.
+        - `customer_location.id` works similarly, but must belong to the customer.
+        - `cod` is a list of currency/amount pairs. Example: [['USD', '10'], ['LBP', '1000000']]
       summary: Create order
       tags:
       - Orders
@@ -279,20 +623,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ExternalOrder'
-            examples:
-              SampleOrder:
-                value:
-                  workflow: STANDARD
-                  customer:
-                    phone_number: '+96171234567'
-                  customer_location:
-                    address: Beirut, Hamra
-                  merchant_location: 2
-                  cod:
-                  - - USD
-                    - '10'
-                  number_of_packages: 1
-                summary: Create new order with embedded customer and location
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/ExternalOrder'
@@ -303,30 +633,78 @@ paths:
       security:
       - MerchantAPIKey: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExternalOrder'
               examples:
-                SampleOrder:
+                SuccessfulOrderCreation:
                   value:
+                    order_id: '179'
+                    reference_id: '123'
+                    is_exchange: 'false'
                     workflow: STANDARD
-                    customer:
-                      phone_number: '+96171234567'
-                    customer_location:
-                      address: Beirut, Hamra
-                    merchant_location: 2
+                    tracking_link: https://prod.parceltracer.app/tracking/xxxxxxx-yyyyyy
+                    is_critical: 'true'
+                    merchant_location: 1
                     cod:
+                    - - LBP
+                      - '2000.00'
                     - - USD
-                      - '10'
+                      - '50.50'
                     number_of_packages: 1
-                  summary: Create new order with embedded customer and location
-          description: ''
+                    description: ''
+                    notes: ''
+                    return_reason: ''
+                    delivery_state: CREATED
+                    payment_state: UNPAID
+                    merchant_invoice: null
+                    customer:
+                      id: 9707
+                      name: Joelle
+                      phone_number: '+96131234567'
+                      secondary_phone_number: null
+                      email: ''
+                    customer_location:
+                      id: 9689
+                      address: Primary address example
+                      district: Beirut
+                      governorate: Beirut
+                      city: Beirut
+                      directions: ''
+                  summary: Successful order creation
+          description: Successful creation
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ValidationError:
+                  value:
+                    error: 'true'
+                    message: Validation failed.
+                    details: 'workflow: "STANDARDS" is not a valid choice.'
+                  summary: Example of validation error response
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ServerError:
+                  value:
+                    error: 'true'
+                    message: Unexpected error.
+                    details: Internal server error
+                  summary: Example of internal server error response
+          description: Server error
   /api/v1/external/orders/{order_id}/:
     get:
       operationId: retrieve_order
-      description: Retrieve the details of a specific order by ID.
+      description: Retrieve the details of a specific order by order ID.
       summary: Retrieve order
       parameters:
       - in: path
@@ -345,24 +723,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/ExternalOrder'
               examples:
-                SampleOrder:
+                SuccessfulOrderCreation:
                   value:
+                    order_id: '179'
+                    reference_id: '123'
+                    is_exchange: 'false'
                     workflow: STANDARD
-                    customer:
-                      phone_number: '+96171234567'
-                    customer_location:
-                      address: Beirut, Hamra
-                    merchant_location: 2
+                    tracking_link: https://prod.parceltracer.app/tracking/xxxxxxx-yyyyyy
+                    is_critical: 'true'
+                    merchant_location: 1
                     cod:
+                    - - LBP
+                      - '2000.00'
                     - - USD
-                      - '10'
+                      - '50.50'
                     number_of_packages: 1
-                  summary: Create new order with embedded customer and location
-          description: ''
+                    description: ''
+                    notes: ''
+                    return_reason: ''
+                    delivery_state: CREATED
+                    payment_state: UNPAID
+                    merchant_invoice: null
+                    customer:
+                      id: 9707
+                      name: Joelle
+                      phone_number: '+96131234567'
+                      secondary_phone_number: null
+                      email: ''
+                    customer_location:
+                      id: 9689
+                      address: Primary address example
+                      district: Beirut
+                      governorate: Beirut
+                      city: Beirut
+                      directions: ''
+                  summary: Successful order creation
+          description: Successful retrieval
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalOrder'
+              examples:
+                NotFoundError:
+                  value:
+                    error: 'true'
+                    message: Resource not found.
+                    details: 'detail: Not found.'
+                  summary: Example of resource not found error
+          description: Order not found
     patch:
       operationId: partial_update_order
-      description: Update the details of a order by ID.
-      summary: Update order
+      description: |-
+        Update specific fields of an existing order.
+
+        **Modifiable fields:**
+        - `reference_id`
+        - `is_critical`
+        - `cod`
+        - `number_of_packages`
+        - `description`
+        - `notes`
+        - `return_reason`
+
+        **Important:**
+        - You **cannot modify** the order once it reaches a terminal state: `DELIVERED`, `DELIVERED_AT_WAREHOUSE`, or `CANCELLED`.
+        - Attempts to update any other fields will result in a **400** error.
+      summary: Update Order
       parameters:
       - in: path
         name: order_id
@@ -375,27 +802,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedExternalOrder'
-            examples:
-              SampleOrder:
-                value:
-                  workflow: STANDARD
-                  customer:
-                    phone_number: '+96171234567'
-                  customer_location:
-                    address: Beirut, Hamra
-                  merchant_location: 2
-                  cod:
-                  - - USD
-                    - '10'
-                  number_of_packages: 1
-                summary: Create new order with embedded customer and location
+              $ref: '#/components/schemas/PatchedPatchOrder'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedExternalOrder'
+              $ref: '#/components/schemas/PatchedPatchOrder'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedExternalOrder'
+              $ref: '#/components/schemas/PatchedPatchOrder'
       security:
       - MerchantAPIKey: []
       responses:
@@ -405,25 +818,86 @@ paths:
               schema:
                 $ref: '#/components/schemas/ExternalOrder'
               examples:
-                SampleOrder:
+                SuccessfulOrderCreation:
                   value:
+                    order_id: '179'
+                    reference_id: '123'
+                    is_exchange: 'false'
                     workflow: STANDARD
-                    customer:
-                      phone_number: '+96171234567'
-                    customer_location:
-                      address: Beirut, Hamra
-                    merchant_location: 2
+                    tracking_link: https://prod.parceltracer.app/tracking/xxxxxxx-yyyyyy
+                    is_critical: 'true'
+                    merchant_location: 1
                     cod:
+                    - - LBP
+                      - '2000.00'
                     - - USD
-                      - '10'
+                      - '50.50'
                     number_of_packages: 1
-                  summary: Create new order with embedded customer and location
-          description: ''
+                    description: ''
+                    notes: ''
+                    return_reason: ''
+                    delivery_state: CREATED
+                    payment_state: UNPAID
+                    merchant_invoice: null
+                    customer:
+                      id: 9707
+                      name: Joelle
+                      phone_number: '+96131234567'
+                      secondary_phone_number: null
+                      email: ''
+                    customer_location:
+                      id: 9689
+                      address: Primary address example
+                      district: Beirut
+                      governorate: Beirut
+                      city: Beirut
+                      directions: ''
+                  summary: Successful order creation
+          description: Successful patch
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  value:
+                    error: 'true'
+                    message: Resource not found.
+                    details: 'detail: Not found.'
+                  summary: Example of resource not found error
+          description: Order not found
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ValidationError:
+                  value:
+                    error: 'true'
+                    message: Validation failed.
+                    details: 'workflow: "STANDARDS" is not a valid choice.'
+                  summary: Example of validation error response
+          description: Validation failure
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ServerError:
+                  value:
+                    error: 'true'
+                    message: Unexpected error.
+                    details: Internal server error
+                  summary: Example of internal server error response
+          description: Server error
   /api/v1/external/orders/{order_id}/cancel/:
     post:
       operationId: cancel_order
-      description: Cancel an order identified by `order_id`. Will fail if the order
-        cannot be cancelled.
+      description: Cancel an order identified by `order_id`. If it is not possible
+        to cancel the order, **400** error code will be returned.
       summary: Cancel order
       parameters:
       - in: path
@@ -437,25 +911,33 @@ paths:
       - MerchantAPIKey: []
       responses:
         '204':
-          description: Order successfully cancelled.
+          description: No response body
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OperationFailed:
+                  value:
+                    error: 'true'
+                    message: Validation failed.
+                    details: delivered orders can not be cancelled
+                  summary: Operation Failed
           description: Bad Request
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Permission Denied
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-          description: Not Found
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  value:
+                    error: 'true'
+                    message: Resource not found.
+                    details: 'detail: Not found.'
+                  summary: Example of resource not found error
+          description: Order not found
 components:
   schemas:
     Customer:
@@ -566,13 +1048,18 @@ components:
         * `Keserwan` - Keserwan
         * `Koura` - Koura
         * `Beirut` - Beirut
-    Error:
+    ErrorResponse:
       type: object
       properties:
-        detail:
+        error:
+          type: boolean
+        message:
           type: string
+        details: {}
       required:
-      - detail
+      - details
+      - error
+      - message
     ExternalLocation:
       type: object
       properties:
@@ -790,57 +1277,15 @@ components:
           type: string
         directions:
           type: string
-    PatchedExternalOrder:
+    PatchedPatchOrder:
       type: object
       properties:
-        order_id:
-          type: string
-          readOnly: true
-          nullable: true
         reference_id:
           type: string
-          pattern: ^([A-Za-z0-9]|\.|-)*$
-          maxLength: 40
-        is_exchange:
-          type: boolean
-        workflow:
-          $ref: '#/components/schemas/WorkflowEnum'
-        tracking_link:
-          type: string
-          format: uri
-          readOnly: true
+          description: Reference ID of the order, for internal tracking by the shop.
         is_critical:
           type: boolean
-          title: Critical
-        customer:
-          allOf:
-          - $ref: '#/components/schemas/Customer'
-          writeOnly: true
-          description: |-
-            Customer object identifying the customer for the order.
-            - To identify an existing customer, provide the unique 'id' field. Other fields will update the existing record.
-            - Alternatively, if 'id' is not provided, provide the unique 'phone_number' to identify the customer.
-            - If neither 'id' nor existing 'phone_number' is found, a new customer will be created, and all required customer fields must be provided.
-        customer_location:
-          allOf:
-          - $ref: '#/components/schemas/ExternalLocation'
-          writeOnly: true
-          description: |-
-            Customer location object for order delivery or pickup.
-            - To identify an existing location, provide the unique 'id'. Other fields will update that location.
-            - If 'id' is not provided, a new location will be created and all required fields must be present.
-            - The location must belong to the specified customer, else the request will be rejected.
-        resolved_customer:
-          allOf:
-          - $ref: '#/components/schemas/Customer'
-          readOnly: true
-        resolved_customer_location:
-          allOf:
-          - $ref: '#/components/schemas/ExternalLocation'
-          readOnly: true
-        merchant_location:
-          type: integer
-          nullable: true
+          description: Mark the order as critical for prioritized handling.
         cod:
           type: array
           items:
@@ -849,31 +1294,24 @@ components:
               type: string
             maxItems: 2
             minItems: 2
-          description: 'Total amount to be collected upon delivery. Example: [[''USD'',
-            ''123.5'']]'
+          description: |-
+            Cash-on-delivery amount to collect upon delivery in case of STANDARD delivery, or to be paid by shop on return for RETURN orders.Format: [['USD', '123.5']].
+
+            Can only be modified if:
+            - Workflow is 'STANDARD', or
+            - Workflow is 'RETURN' **and** the delivery state is 'CREATED'.
         number_of_packages:
           type: integer
-          maximum: 99
-          minimum: 1
+          description: Number of packages in the order.
         description:
           type: string
-          maxLength: 300
+          description: Optional description of the order contents.
         notes:
           type: string
+          description: Customer-visible notes about the order.
         return_reason:
           type: string
-          maxLength: 300
-        delivery_state:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryStateEnum'
-          readOnly: true
-        payment_state:
-          type: string
-          readOnly: true
-        merchant_invoice:
-          type: integer
-          readOnly: true
-          nullable: true
+          description: Applicable if the order is a return. Reason for the return.
     WorkflowEnum:
       enum:
       - STANDARD
@@ -887,3 +1325,6 @@ components:
       type: apiKey
       in: header
       name: X-Api-Key
+servers:
+- url: http://localhost:8000/
+  description: Local Sandbox
