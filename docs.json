@@ -27,8 +27,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/home_page.png",
-    "dark": "/logo/home_page.png"
+    "light": "/logo/main-logo.png",
+    "dark": "/logo/main-logo.png"
   },
   "navbar": {
     "links": [
