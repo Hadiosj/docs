@@ -11,11 +11,18 @@
   "navigation": {
     "groups": [
       {
+        "group": "User Guide",
+        "pages": [
+          "quickstart",
+          "pricing"
+        ]
+      },
+      {
         "group": "Models",
         "pages": [
-          "resources/customers",
-          "resources/customer-locations",
-          "resources/orders"
+          "models/customers",
+          "models/customer-locations",
+          "models/orders"
         ]
       },
       {
