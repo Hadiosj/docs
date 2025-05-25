@@ -3,7 +3,7 @@ info:
   title: ''
   version: 0.0.0
 paths:
-  /api/v1/external/customers/:
+  /customers/:
     get:
       operationId: list_customers
       description: Retrieve a paginated list of customers.
@@ -125,7 +125,7 @@ paths:
                     details: Internal server error
                   summary: Example of internal server error response
           description: Server error
-  /api/v1/external/customers/{customer_pk}/locations/:
+  /customers/{customer_pk}/locations/:
     get:
       operationId: list_customer_locations
       description: Retrieve all locations associated with the given customer.
@@ -248,7 +248,7 @@ paths:
                     details: Internal server error
                   summary: Example of internal server error response
           description: Server error
-  /api/v1/external/customers/{customer_pk}/locations/{location_pk}/:
+  /customers/{customer_pk}/locations/{location_pk}/:
     get:
       operationId: retrieve_customer_location
       description: Retrieve the details of a specific customer location.
@@ -385,7 +385,7 @@ paths:
                     details: Internal server error
                   summary: Example of internal server error response
           description: Server error
-  /api/v1/external/customers/{id}/:
+  /customers/{id}/:
     get:
       operationId: retrieve_customer
       description: Retrieve the details of a specific customer by ID.
@@ -396,6 +396,12 @@ paths:
         schema:
           type: integer
         required: true
+      - in: query
+        name: include_locations
+        schema:
+          type: boolean
+          default: false
+        description: If true, includes customer locations in the response.
       tags:
       - Customers
       security:
@@ -509,7 +515,7 @@ paths:
                     details: Internal server error
                   summary: Example of internal server error response
           description: Server error
-  /api/v1/external/orders/:
+  /orders/:
     get:
       operationId: list_orders
       description: Retrieve a paginated list of orders.
@@ -622,13 +628,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExternalOrder'
+              $ref: '#/components/schemas/CreateOrderSerializerDocs'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ExternalOrder'
+              $ref: '#/components/schemas/CreateOrderSerializerDocs'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ExternalOrder'
+              $ref: '#/components/schemas/CreateOrderSerializerDocs'
         required: true
       security:
       - MerchantAPIKey: []
@@ -701,7 +707,7 @@ paths:
                     details: Internal server error
                   summary: Example of internal server error response
           description: Server error
-  /api/v1/external/orders/{order_id}/:
+  /orders/{order_id}/:
     get:
       operationId: retrieve_order
       description: Retrieve the details of a specific order by order ID.
@@ -802,13 +808,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPatchOrder'
+              $ref: '#/components/schemas/PatchedPatchOrderSerializerDocs'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPatchOrder'
+              $ref: '#/components/schemas/PatchedPatchOrderSerializerDocs'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPatchOrder'
+              $ref: '#/components/schemas/PatchedPatchOrderSerializerDocs'
       security:
       - MerchantAPIKey: []
       responses:
@@ -893,7 +899,7 @@ paths:
                     details: Internal server error
                   summary: Example of internal server error response
           description: Server error
-  /api/v1/external/orders/{order_id}/cancel/:
+  /orders/{order_id}/cancel/:
     post:
       operationId: cancel_order
       description: Cancel an order identified by `order_id`. If it is not possible
@@ -940,6 +946,88 @@ paths:
           description: Order not found
 components:
   schemas:
+    CreateOrderSerializerDocs:
+      type: object
+      properties:
+        reference_id:
+          type: string
+          default: ''
+          description: Reference ID of the order, for internal tracking by the shop.
+        is_critical:
+          type: boolean
+          default: false
+          description: Mark the order as critical for prioritized handling (subject
+            to the delivery company load and availability)
+        is_exchange:
+          type: boolean
+          default: false
+          description: ('Require pickup of a return package upon delivery.\n', 'This
+            option is only applicable when workflow is STANDARD')
+        workflow:
+          allOf:
+          - $ref: '#/components/schemas/CreateOrderSerializerDocsWorkflowEnum'
+          default: STANDARD
+          description: |-
+            Order workflow: STANDARD or RETURN.
+
+            * `STANDARD` - STANDARD
+            * `RETURN` - RETURN
+        merchant_location:
+          type: integer
+          description: ("Unique identifier of the merchant's location.\n", 'This identifier
+            should correspond to one of the pickup locations visible on the pickup
+            locations page on Parcel Tracer.')
+        customer:
+          allOf:
+          - $ref: '#/components/schemas/CustomerDocs'
+          description: |-
+            Customer object for the order.
+            - Provide 'id' to identify an existing customer (other fields update the record).
+            - Otherwise provide 'phone_number' plus required customer fields to create a new customer.
+        customer_location:
+          allOf:
+          - $ref: '#/components/schemas/CustomerLocationDocs'
+          description: |-
+            Customer location for delivery or pickup.
+            - Provide 'id' to identify an existing location (other fields update it).
+            - Otherwise, provide full location details to create a new location.
+        cod:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+            maxItems: 2
+            minItems: 2
+          description: 'Total amount to be collected upon delivery (or upon return).
+            Example: [[''USD'', ''123.5'']]'
+        number_of_packages:
+          type: integer
+          default: 1
+          description: ('Number of packages in the order.\n', 'Should be greater than
+            or equal to 1.')
+        description:
+          type: string
+          description: Optional description of the order contents.
+        notes:
+          type: string
+          description: Extra notes about the order, visible to delivery company, carriers
+            and customers.
+        return_reason:
+          type: string
+          description: Applicable if the order is a return. Reason for the return.
+      required:
+      - customer
+      - customer_location
+      - merchant_location
+    CreateOrderSerializerDocsWorkflowEnum:
+      enum:
+      - STANDARD
+      - RETURN
+      type: string
+      description: |-
+        * `STANDARD` - STANDARD
+        * `RETURN` - RETURN
     Customer:
       type: object
       properties:
@@ -960,6 +1048,77 @@ components:
       - id
       - name
       - phone_number
+    CustomerDocs:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          description: Unique ID of the customer. If provided, other fields are optional
+            and update the customer.
+        phone_number:
+          type: string
+          description: Customer phone number. Required if 'id' is not provided.
+        secondary_phone_number:
+          type: string
+          description: Secondary customer phone number. Required if 'id' is not provided.
+        name:
+          type: string
+          description: Customer full name. Required if creating a new customer.
+        email:
+          type: string
+          format: email
+          description: Customer email.
+    CustomerLocationDocs:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          description: Unique ID of the location. If provided, other fields update
+            this location.
+        address:
+          type: string
+          description: Address for the customer location. Required if creating a new
+            location.
+        city:
+          type: string
+          description: City of the location.
+        district:
+          allOf:
+          - $ref: '#/components/schemas/DistrictEnum'
+          description: |-
+            District of the location. Required if creating a new location.
+
+            * `Zahleh` - Zahleh
+            * `Hasbaya` - Hasbaya
+            * `Baalbek` - Baalbek
+            * `Jezzine` - Jezzine
+            * `Baabda` - Baabda
+            * `Jbeil` - Jbeil
+            * `Zgharta` - Zgharta
+            * `Bint Jbeil` - Bint Jbeil
+            * `Hermel` - Hermel
+            * `Marjeyoun` - Marjeyoun
+            * `Bsharri` - Bsharri
+            * `Aley` - Aley
+            * `Rashaya` - Rashaya
+            * `Miniyeh-Danniyeh` - Miniyeh-Danniyeh
+            * `Tripoli` - Tripoli
+            * `Tyre` - Tyre
+            * `Nabatieh` - Nabatieh
+            * `Chouf` - Chouf
+            * `Maatn` - Maatn
+            * `Western Beqaa` - Western Beqaa
+            * `Akkar` - Akkar
+            * `Sidon` - Sidon
+            * `Batroun` - Batroun
+            * `Keserwan` - Keserwan
+            * `Koura` - Koura
+            * `Beirut` - Beirut
+        directions:
+          type: string
+          description: Additional indications to help the carrier reach the customer.
     DeliveryStateEnum:
       enum:
       - CREATED
@@ -1065,6 +1224,7 @@ components:
       properties:
         id:
           type: integer
+          readOnly: true
         address:
           type: string
         district:
@@ -1081,6 +1241,7 @@ components:
       - city
       - district
       - governorate
+      - id
     ExternalOrder:
       type: object
       properties:
@@ -1095,7 +1256,7 @@ components:
         is_exchange:
           type: boolean
         workflow:
-          $ref: '#/components/schemas/WorkflowEnum'
+          $ref: '#/components/schemas/ExternalOrderWorkflowEnum'
         tracking_link:
           type: string
           format: uri
@@ -1104,8 +1265,8 @@ components:
           type: boolean
           title: Critical
         customer:
-          allOf:
-          - $ref: '#/components/schemas/Customer'
+          type: object
+          additionalProperties: {}
           writeOnly: true
           description: |-
             Customer object identifying the customer for the order.
@@ -1113,8 +1274,8 @@ components:
             - Alternatively, if 'id' is not provided, provide the unique 'phone_number' to identify the customer.
             - If neither 'id' nor existing 'phone_number' is found, a new customer will be created, and all required customer fields must be provided.
         customer_location:
-          allOf:
-          - $ref: '#/components/schemas/ExternalLocation'
+          type: object
+          additionalProperties: {}
           writeOnly: true
           description: |-
             Customer location object for order delivery or pickup.
@@ -1131,7 +1292,6 @@ components:
           readOnly: true
         merchant_location:
           type: integer
-          nullable: true
         cod:
           type: array
           items:
@@ -1177,17 +1337,25 @@ components:
           readOnly: true
           nullable: true
       required:
-      - cod
       - customer
       - customer_location
       - delivery_fee
       - delivery_state
       - merchant_invoice
+      - merchant_location
       - order_id
       - payment_state
       - resolved_customer
       - resolved_customer_location
       - tracking_link
+    ExternalOrderWorkflowEnum:
+      enum:
+      - STANDARD
+      - RETURN
+      type: string
+      description: |-
+        * `STANDARD` - Standard
+        * `RETURN` - Return
     PaginatedCustomerList:
       type: object
       required:
@@ -1278,6 +1446,7 @@ components:
       properties:
         id:
           type: integer
+          readOnly: true
         address:
           type: string
         district:
@@ -1289,7 +1458,7 @@ components:
           type: string
         directions:
           type: string
-    PatchedPatchOrder:
+    PatchedPatchOrderSerializerDocs:
       type: object
       properties:
         reference_id:
@@ -1324,19 +1493,11 @@ components:
         return_reason:
           type: string
           description: Applicable if the order is a return. Reason for the return.
-    WorkflowEnum:
-      enum:
-      - STANDARD
-      - RETURN
-      type: string
-      description: |-
-        * `STANDARD` - Standard
-        * `RETURN` - Return
   securitySchemes:
     MerchantAPIKey:
       type: apiKey
       in: header
       name: X-Api-Key
 servers:
-- url: http://localhost:8000/
-  description: Local Sandbox
+- url: https://api.parceltracer.app/v1/external/
+  description: Parcel Tracer api endpoint
